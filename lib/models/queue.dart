@@ -1,9 +1,10 @@
 import 'task.dart';
 
 enum SortOrder {
-  lowToHigh,
-  highToLow,
   none,
+  lowToHigh,   // Önem düşükten yükseğe
+  highToLow,   // Önem yüksekten düşüğe
+  byDueDate,   // En yakın son tarih
 }
 
 class QueueModel {
@@ -31,10 +32,23 @@ class QueueModel {
     final completed = tasks.where((t) => t.isCompleted).toList();
     
     // Sort pending tasks if needed
-    if (sortOrder == SortOrder.lowToHigh) {
-      pending.sort((a, b) => a.importance.compareTo(b.importance));
-    } else if (sortOrder == SortOrder.highToLow) {
-      pending.sort((a, b) => b.importance.compareTo(a.importance));
+    switch (sortOrder) {
+      case SortOrder.lowToHigh:
+        pending.sort((a, b) => a.importance.compareTo(b.importance));
+        break;
+      case SortOrder.highToLow:
+        pending.sort((a, b) => b.importance.compareTo(a.importance));
+        break;
+      case SortOrder.byDueDate:
+        pending.sort((a, b) {
+          if (a.dueDate == null && b.dueDate == null) return 0;
+          if (a.dueDate == null) return 1;
+          if (b.dueDate == null) return -1;
+          return a.dueDate!.compareTo(b.dueDate!);
+        });
+        break;
+      case SortOrder.none:
+        break;
     }
     
     // Completed tasks go after pending tasks

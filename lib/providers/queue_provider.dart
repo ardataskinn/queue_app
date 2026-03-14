@@ -5,13 +5,45 @@ import '../models/queue.dart';
 import '../models/task.dart';
 import 'package:uuid/uuid.dart';
 
+/// Tek bir puan kazanma kaydı (görev tamamlandığında)
+class PointEntry {
+  final String taskId;
+  final String taskTitle;
+  final int points;
+  final DateTime dateTime;
+
+  PointEntry({
+    required this.taskId,
+    required this.taskTitle,
+    required this.points,
+    required this.dateTime,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'taskId': taskId,
+        'taskTitle': taskTitle,
+        'points': points,
+        'dateTime': dateTime.toIso8601String(),
+      };
+
+  factory PointEntry.fromJson(Map<String, dynamic> json) => PointEntry(
+        taskId: json['taskId'] as String,
+        taskTitle: json['taskTitle'] as String,
+        points: json['points'] as int,
+        dateTime: DateTime.parse(json['dateTime'] as String),
+      );
+}
+
 class QueueProvider with ChangeNotifier {
   final List<QueueModel> _queues = [];
   int _totalPoints = 0;
+  final List<PointEntry> _pointsHistory = [];
   final _uuid = const Uuid();
 
   List<QueueModel> get queues => List.unmodifiable(_queues);
   int get totalPoints => _totalPoints;
+  /// Puan kazanma geçmişi (en yeni en üstte)
+  List<PointEntry> get pointsHistory => List.unmodifiable(_pointsHistory.reversed);
 
   QueueProvider() {
     _loadData();
@@ -22,6 +54,7 @@ class QueueProvider with ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final queuesJson = prefs.getString('queues');
       final points = prefs.getInt('totalPoints') ?? 0;
+      final historyJson = prefs.getString('pointsHistory');
 
       if (queuesJson != null) {
         final List<dynamic> decoded = json.decode(queuesJson);
@@ -32,6 +65,13 @@ class QueueProvider with ChangeNotifier {
       }
 
       _totalPoints = points;
+      _pointsHistory.clear();
+      if (historyJson != null) {
+        final List<dynamic> decoded = json.decode(historyJson);
+        _pointsHistory.addAll(
+          decoded.map((e) => PointEntry.fromJson(e as Map<String, dynamic>)),
+        );
+      }
       notifyListeners();
     } catch (e) {
       debugPrint('Error loading data: $e');
@@ -46,6 +86,10 @@ class QueueProvider with ChangeNotifier {
       );
       await prefs.setString('queues', queuesJson);
       await prefs.setInt('totalPoints', _totalPoints);
+      await prefs.setString(
+        'pointsHistory',
+        json.encode(_pointsHistory.map((e) => e.toJson()).toList()),
+      );
     } catch (e) {
       debugPrint('Error saving data: $e');
     }
@@ -148,6 +192,12 @@ class QueueProvider with ChangeNotifier {
     _queues[queueIndex] = queue.copyWith(tasks: updatedTasks);
 
     _totalPoints += task.points;
+    _pointsHistory.add(PointEntry(
+      taskId: task.id,
+      taskTitle: task.title,
+      points: task.points,
+      dateTime: DateTime.now(),
+    ));
 
     await _saveData();
     notifyListeners();
@@ -179,6 +229,7 @@ class QueueProvider with ChangeNotifier {
 
     _totalPoints -= task.points;
     if (_totalPoints < 0) _totalPoints = 0;
+    _pointsHistory.removeWhere((e) => e.taskId == taskId);
 
     await _saveData();
     notifyListeners();
