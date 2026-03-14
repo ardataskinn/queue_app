@@ -27,7 +27,11 @@ class Task {
     this.dueDate,
   }) : subtasks = subtasks ?? [];
 
-  int get points => 10; // Fixed 10 points per task
+  /// Ana görev tamamlandığında kazanılan puan (önceliğe göre 1-10)
+  int get points => importance;
+
+  /// Alt görev tamamlandığında kazanılan puan (görevin puanının 1/4'ü, yuvarlanmış)
+  int get subtaskPoints => (importance / 4).round();
 
   Task copyWith({
     String? id,

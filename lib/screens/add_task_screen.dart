@@ -21,6 +21,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   String? _selectedQueueId;
   int _importance = 5;
   bool _showNotification = false;
+  bool _isSubmitting = false;
   DateTime? _dueDate;
   TimeOfDay? _dueTime;
 
@@ -365,7 +366,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _submitTask,
+                    onPressed: _isSubmitting ? null : _submitTask,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -373,14 +374,23 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
-                      'Görev Ekle',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: _isSubmitting
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            'Görev Ekle',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
               ],
@@ -423,10 +433,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Text(
-              'Task added! +10 Queue Points',
-              style: TextStyle(
+              'Görev eklendi! Tamamlandığında +$_importance puan',
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
@@ -447,49 +457,48 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   void _submitTask() {
-    if (_formKey.currentState!.validate()) {
-      final provider = Provider.of<QueueProvider>(context, listen: false);
-      final queueId = _selectedQueueId ?? provider.queues.first.id;
+    if (_isSubmitting) return;
+    if (!_formKey.currentState!.validate()) return;
 
-      DateTime? dueDateTime;
-      if (_dueDate != null) {
-        if (_dueTime != null) {
-          dueDateTime = DateTime(
-            _dueDate!.year,
-            _dueDate!.month,
-            _dueDate!.day,
-            _dueTime!.hour,
-            _dueTime!.minute,
-          );
-        } else {
-          dueDateTime = DateTime(
-            _dueDate!.year,
-            _dueDate!.month,
-            _dueDate!.day,
-            23,
-            59,
-          );
-        }
+    _isSubmitting = true;
+    setState(() {});
+
+    final provider = Provider.of<QueueProvider>(context, listen: false);
+    final queueId = _selectedQueueId ?? provider.queues.first.id;
+
+    DateTime? dueDateTime;
+    if (_dueDate != null) {
+      if (_dueTime != null) {
+        dueDateTime = DateTime(
+          _dueDate!.year,
+          _dueDate!.month,
+          _dueDate!.day,
+          _dueTime!.hour,
+          _dueTime!.minute,
+        );
+      } else {
+        dueDateTime = DateTime(
+          _dueDate!.year,
+          _dueDate!.month,
+          _dueDate!.day,
+          23,
+          59,
+        );
       }
+    }
 
-      provider.addTaskToQueue(
-        queueId,
-        _titleController.text.trim(),
-        description: null,
-        importance: _importance,
-        difficulty: 5, // Default difficulty
-        dueDate: dueDateTime,
-      );
+    provider.addTaskToQueue(
+      queueId,
+      _titleController.text.trim(),
+      description: null,
+      importance: _importance,
+      difficulty: 5,
+      dueDate: dueDateTime,
+    );
 
-      setState(() {
-        _showNotification = true;
-      });
-
-      Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) {
-          Navigator.pop(context);
-        }
-      });
+    // Hemen kapat; kayıt arka planda tamamlanır
+    if (mounted) {
+      Navigator.pop(context);
     }
   }
 }

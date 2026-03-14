@@ -150,15 +150,22 @@ class PointsDisplay extends StatelessWidget {
                         itemCount: provider.pointsHistory.length,
                         itemBuilder: (context, index) {
                           final entry = provider.pointsHistory[index];
+                          final displayTitle = entry.isSubtask && entry.subtaskTitle != null
+                              ? '${entry.taskTitle} → ${entry.subtaskTitle}'
+                              : entry.taskTitle;
                           return Card(
                             margin: const EdgeInsets.only(bottom: 8),
                             child: ListTile(
                               leading: CircleAvatar(
                                 backgroundColor: Colors.amber.withOpacity(0.3),
-                                child: const Icon(Icons.check_circle, color: Colors.amber),
+                                child: Icon(
+                                  entry.isSubtask ? Icons.subdirectory_arrow_right : Icons.check_circle,
+                                  color: Colors.amber,
+                                  size: entry.isSubtask ? 20 : 24,
+                                ),
                               ),
                               title: Text(
-                                entry.taskTitle,
+                                displayTitle,
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(fontWeight: FontWeight.w500),
                               ),

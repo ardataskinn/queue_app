@@ -5,25 +5,34 @@ import '../models/queue.dart';
 import '../models/task.dart';
 import 'package:uuid/uuid.dart';
 
-/// Tek bir puan kazanma kaydı (görev tamamlandığında)
+/// Tek bir puan kazanma kaydı (görev veya alt görev tamamlandığında)
 class PointEntry {
   final String taskId;
   final String taskTitle;
   final int points;
   final DateTime dateTime;
+  /// Alt görev tamamlandıysa dolu; ana görev tamamlandıysa null
+  final String? subtaskId;
+  final String? subtaskTitle;
 
   PointEntry({
     required this.taskId,
     required this.taskTitle,
     required this.points,
     required this.dateTime,
+    this.subtaskId,
+    this.subtaskTitle,
   });
+
+  bool get isSubtask => subtaskId != null;
 
   Map<String, dynamic> toJson() => {
         'taskId': taskId,
         'taskTitle': taskTitle,
         'points': points,
         'dateTime': dateTime.toIso8601String(),
+        if (subtaskId != null) 'subtaskId': subtaskId,
+        if (subtaskTitle != null) 'subtaskTitle': subtaskTitle,
       };
 
   factory PointEntry.fromJson(Map<String, dynamic> json) => PointEntry(
@@ -31,6 +40,8 @@ class PointEntry {
         taskTitle: json['taskTitle'] as String,
         points: json['points'] as int,
         dateTime: DateTime.parse(json['dateTime'] as String),
+        subtaskId: json['subtaskId'] as String?,
+        subtaskTitle: json['subtaskTitle'] as String?,
       );
 }
 
@@ -229,7 +240,7 @@ class QueueProvider with ChangeNotifier {
 
     _totalPoints -= task.points;
     if (_totalPoints < 0) _totalPoints = 0;
-    _pointsHistory.removeWhere((e) => e.taskId == taskId);
+    _pointsHistory.removeWhere((e) => e.taskId == taskId && e.subtaskId == null);
 
     await _saveData();
     notifyListeners();
@@ -283,6 +294,23 @@ class QueueProvider with ChangeNotifier {
     final updatedTasks = List<Task>.from(queue.tasks);
     updatedTasks[taskIndex] = updatedTask;
     _queues[queueIndex] = queue.copyWith(tasks: updatedTasks);
+
+    final subtaskPoints = task.subtaskPoints;
+    if (updatedSubtask.isCompleted) {
+      _totalPoints += subtaskPoints;
+      _pointsHistory.add(PointEntry(
+        taskId: task.id,
+        taskTitle: task.title,
+        points: subtaskPoints,
+        dateTime: DateTime.now(),
+        subtaskId: updatedSubtask.id,
+        subtaskTitle: updatedSubtask.title,
+      ));
+    } else {
+      _totalPoints -= subtaskPoints;
+      if (_totalPoints < 0) _totalPoints = 0;
+      _pointsHistory.removeWhere((e) => e.taskId == taskId && e.subtaskId == subtaskId);
+    }
 
     await _saveData();
     notifyListeners();
