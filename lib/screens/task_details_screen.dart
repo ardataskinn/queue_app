@@ -45,7 +45,7 @@ class TaskDetailsScreen extends StatelessWidget {
 
           final task = queue.tasks.firstWhere(
             (t) => t.id == taskId,
-            orElse: () => throw Exception('Task not found'),
+            orElse: () => throw Exception('Görev bulunamadı'),
           );
 
           final importanceColor = _getImportanceColor(task.importance);
@@ -111,7 +111,7 @@ class TaskDetailsScreen extends StatelessWidget {
                         icon: Icons.calendar_today_outlined,
                         iconColor: Colors.blue,
                         label: 'Eklendi',
-                        value: DateFormat('MMMM dd, yyyy').format(task.createdAt),
+                        value: DateFormat('d MMMM yyyy', 'tr_TR').format(task.createdAt),
                       ),
                       const SizedBox(height: 16),
 
@@ -150,7 +150,7 @@ class TaskDetailsScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    '${DateFormat('MMMM dd, yyyy').format(task.dueDate!)} at ${TimeOfDay.fromDateTime(task.dueDate!).format(context)}',
+                                    '${DateFormat('d MMMM yyyy', 'tr_TR').format(task.dueDate!)} ${TimeOfDay.fromDateTime(task.dueDate!).format(context)}',
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
@@ -190,7 +190,7 @@ class TaskDetailsScreen extends StatelessWidget {
                         const Divider(),
                         const SizedBox(height: 16),
                         const Text(
-                          'Subtasks',
+                          'Alt Görevler',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,

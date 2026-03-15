@@ -78,7 +78,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 TextFormField(
                   controller: _titleController,
                   decoration: InputDecoration(
-                    hintText: 'Örn: Yeni landing page tasarla',
+                    hintText: 'Örn: Yeni sayfa tasarla',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(color: Colors.grey[300]!),
@@ -236,7 +236,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     border: Border.all(color: Colors.grey[300]!),
                   ),
                   child: Text(
-                    DateFormat('MMMM dd, yyyy').format(DateTime.now()),
+                    DateFormat('d MMMM yyyy', 'tr_TR').format(DateTime.now()),
                     style: const TextStyle(
                       fontSize: 16,
                       color: Colors.black87,
@@ -284,8 +284,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                             children: [
                               Text(
                                 _dueDate != null
-                                    ? DateFormat('MMM dd, yyyy').format(_dueDate!)
-                                    : 'Select date',
+                                    ? DateFormat('d MMM yyyy', 'tr_TR').format(_dueDate!)
+                                    : 'Tarih seçin',
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: _dueDate != null
@@ -335,7 +335,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                               Text(
                                 _dueTime != null
                                     ? _dueTime!.format(context)
-                                    : 'Time',
+                                    : 'Saat',
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: _dueTime != null

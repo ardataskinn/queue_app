@@ -26,7 +26,7 @@ class DashboardScreen extends StatelessWidget {
             const SizedBox(width: 8),
             Flexible(
               child: const Text(
-                'Dashboard',
+                'Ana Sayfa',
                 style: TextStyle(
                   color: Colors.black87,
                   fontSize: 24,

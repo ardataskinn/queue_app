@@ -43,13 +43,13 @@ class TaskCard extends StatelessWidget {
                     icon: const Icon(Icons.check_circle_outline),
                     onPressed: onComplete,
                     color: Colors.green,
-                    tooltip: 'Complete Task',
+                    tooltip: 'Görevi tamamla',
                   ),
                 IconButton(
                   icon: const Icon(Icons.delete_outline),
                   onPressed: onDelete,
                   color: Colors.red,
-                  tooltip: 'Delete Task',
+                  tooltip: 'Görevi sil',
                 ),
               ],
             ),
@@ -71,13 +71,13 @@ class TaskCard extends StatelessWidget {
               children: [
                 _buildBadge(
                   Icons.priority_high,
-                  'Importance: ${task.importance}',
+                  'Önem: ${task.importance}',
                   Colors.blue,
                 ),
                 const SizedBox(width: 8),
                 _buildBadge(
                   Icons.trending_up,
-                  'Difficulty: ${task.difficulty}',
+                  'Zorluk: ${task.difficulty}',
                   Colors.orange,
                 ),
                 const Spacer(),

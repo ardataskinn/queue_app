@@ -48,7 +48,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'No queues yet',
+                      'Henüz liste yok',
                       style: TextStyle(
                         fontSize: 18,
                         color: Colors.grey[600],

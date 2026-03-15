@@ -6,26 +6,26 @@ class TimeFormatter {
     if (difference.inHours < 24) {
       if (difference.inHours < 1) {
         if (difference.inMinutes < 1) {
-          return 'Just now';
+          return 'Az önce';
         }
-        return '${difference.inMinutes} ${difference.inMinutes == 1 ? 'minute' : 'minutes'} ago';
+        return '${difference.inMinutes} ${difference.inMinutes == 1 ? 'dakika' : 'dakika'} önce';
       }
-      return '${difference.inHours} ${difference.inHours == 1 ? 'hour' : 'hours'} ago';
+      return '${difference.inHours} ${difference.inHours == 1 ? 'saat' : 'saat'} önce';
     } else {
       final days = difference.inDays;
       if (days == 1) {
-        return 'Yesterday';
+        return 'Dün';
       } else if (days < 7) {
-        return '$days days ago';
+        return '$days gün önce';
       } else if (days < 30) {
         final weeks = (days / 7).floor();
-        return '$weeks ${weeks == 1 ? 'week' : 'weeks'} ago';
+        return '$weeks ${weeks == 1 ? 'hafta' : 'hafta'} önce';
       } else if (days < 365) {
         final months = (days / 30).floor();
-        return '$months ${months == 1 ? 'month' : 'months'} ago';
+        return '$months ${months == 1 ? 'ay' : 'ay'} önce';
       } else {
         final years = (days / 365).floor();
-        return '$years ${years == 1 ? 'year' : 'years'} ago';
+        return '$years ${years == 1 ? 'yıl' : 'yıl'} önce';
       }
     }
   }
