@@ -44,29 +44,23 @@ class DashboardScreen extends StatelessWidget {
       ),
       body: Consumer<QueueProvider>(
         builder: (context, provider, child) {
-          // Get all recent tasks from all queues (not completed), sorted by creation date (newest first)
+          // Tüm queue'lardan tamamlanmamış görevleri topla
           final allRecentTasks = <Task>[];
           for (final queue in provider.queues) {
-            final pendingTasks = queue.pendingTasks;
-            allRecentTasks.addAll(pendingTasks);
+            allRecentTasks.addAll(queue.pendingTasks);
           }
-          // Sort by creation date, newest first
-          allRecentTasks.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-          
-          // Get tasks with due dates, sorted by time remaining (least time first)
-          // If no due dates, get oldest tasks
+          allRecentTasks.sort((a, b) => b.createdAt.compareTo(a.createdAt)); // Tüm Yapılacaklar için
+          // "Bunları Unutma": En yakın bitiş tarihine sahip görevler önce (dueDate artan)
           final tasksWithDueDate = allRecentTasks.where((t) => t.dueDate != null).toList();
           tasksWithDueDate.sort((a, b) {
             if (a.dueDate == null || b.dueDate == null) return 0;
-            return a.dueDate!.compareTo(b.dueDate!);
+            return a.dueDate!.compareTo(b.dueDate!); // En yakın tarih ilk
           });
-          
-          // Get top 2 tasks for "Don't Forget These!"
           final importantTasks = <Task>[];
           if (tasksWithDueDate.isNotEmpty) {
-            importantTasks.addAll(tasksWithDueDate.take(2));
+            importantTasks.addAll(tasksWithDueDate); // Hepsi, en yakın bitiş tarihi en başta
           } else {
-            // If no due dates, get oldest tasks
+            // Son tarihi olmayan görevler: en eskiden yeniye, en fazla 2
             final oldestTasks = List<Task>.from(allRecentTasks);
             oldestTasks.sort((a, b) => a.createdAt.compareTo(b.createdAt));
             importantTasks.addAll(oldestTasks.take(2));
