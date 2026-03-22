@@ -6,6 +6,7 @@ import '../widgets/points_display.dart';
 import '../screens/queue_detail_screen.dart';
 import '../screens/add_task_screen.dart';
 import '../screens/home_screen.dart';
+import '../screens/statistics_screen.dart';
 import '../widgets/task_card_dashboard.dart';
 import '../widgets/queue_card.dart';
 import '../utils/time_formatter.dart';
@@ -37,9 +38,28 @@ class DashboardScreen extends StatelessWidget {
             ),
           ],
         ),
-        actions: const [
-          PointsDisplay(),
-          SizedBox(width: 8),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const StatisticsScreen(),
+                ),
+              );
+            },
+            icon: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Colors.purple.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.bar_chart_rounded, color: Colors.purple, size: 22),
+            ),
+            tooltip: 'İstatistikler',
+          ),
+          const PointsDisplay(),
+          const SizedBox(width: 8),
         ],
       ),
       body: Consumer<QueueProvider>(

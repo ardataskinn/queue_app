@@ -4,6 +4,7 @@ import '../providers/queue_provider.dart';
 import '../screens/queue_detail_screen.dart';
 import '../widgets/queue_card.dart';
 import '../widgets/points_display.dart';
+import '../screens/statistics_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -27,9 +28,28 @@ class HomeScreen extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: const [
-          PointsDisplay(),
-          SizedBox(width: 8),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const StatisticsScreen(),
+                ),
+              );
+            },
+            icon: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Colors.purple.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.bar_chart_rounded, color: Colors.purple, size: 22),
+            ),
+            tooltip: 'İstatistikler',
+          ),
+          const PointsDisplay(),
+          const SizedBox(width: 8),
         ],
       ),
       body: Consumer<QueueProvider>(

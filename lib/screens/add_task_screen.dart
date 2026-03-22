@@ -37,6 +37,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     super.dispose();
   }
 
+  /// Dropdown ve gönderim için: seçili id her zaman mevcut queue listesinde olur
+  String? _effectiveQueueId(QueueProvider provider) {
+    if (provider.queues.isEmpty) return null;
+    final ids = provider.queues.map((q) => q.id).toList();
+    if (_selectedQueueId != null && ids.contains(_selectedQueueId)) {
+      return _selectedQueueId;
+    }
+    return ids.first;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,7 +88,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 TextFormField(
                   controller: _titleController,
                   decoration: InputDecoration(
-                    hintText: 'Örn: Yeni sayfa tasarla',
+                    hintText: 'Örn: Bicepsten sushi ye',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(color: Colors.grey[300]!),
@@ -135,6 +145,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       );
                     }
 
+                    final effectiveId = _effectiveQueueId(provider)!;
+
                     return Container(
                       decoration: BoxDecoration(
                         color: Colors.grey[50],
@@ -142,7 +154,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         border: Border.all(color: Colors.grey[300]!),
                       ),
                       child: DropdownButtonFormField<String>(
-                        initialValue: _selectedQueueId ?? provider.queues.first.id,
+                        value: effectiveId,
+                        isExpanded: true,
                         decoration: const InputDecoration(
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(
@@ -157,6 +170,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                           );
                         }).toList(),
                         onChanged: (value) {
+                          if (value == null) return;
                           setState(() {
                             _selectedQueueId = value;
                           });
@@ -464,7 +478,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     setState(() {});
 
     final provider = Provider.of<QueueProvider>(context, listen: false);
-    final queueId = _selectedQueueId ?? provider.queues.first.id;
+    final queueId = _effectiveQueueId(provider);
+    if (queueId == null) {
+      if (mounted) setState(() => _isSubmitting = false);
+      return;
+    }
 
     DateTime? dueDateTime;
     if (_dueDate != null) {

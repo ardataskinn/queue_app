@@ -396,5 +396,60 @@ class QueueProvider with ChangeNotifier {
     });
     return tasksWithDueDate;
   }
+
+  /// Sadece ana görev tamamlamaları (alt görev hariç)
+  List<PointEntry> get _taskCompletions =>
+      _pointsHistory.where((e) => !e.isSubtask).toList();
+
+  int get completedTodayCount {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(const Duration(days: 1));
+    return _taskCompletions
+        .where((e) => !e.dateTime.isBefore(today) && e.dateTime.isBefore(tomorrow))
+        .length;
+  }
+
+  int get completedThisWeekCount {
+    final now = DateTime.now();
+    final startOfWeek = DateTime(now.year, now.month, now.day)
+        .subtract(Duration(days: now.weekday - 1));
+    return _taskCompletions
+        .where((e) => !e.dateTime.isBefore(startOfWeek))
+        .length;
+  }
+
+  int get completedThisMonthCount {
+    final now = DateTime.now();
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    return _taskCompletions
+        .where((e) => !e.dateTime.isBefore(startOfMonth))
+        .length;
+  }
+
+  int get totalCompletedCount => _taskCompletions.length;
+
+  /// Ardışık gün serisi: bugünden geriye kaç gün üst üste en az 1 görev tamamlanmış
+  int get currentStreak {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final dates = _taskCompletions
+        .map((e) => DateTime(e.dateTime.year, e.dateTime.month, e.dateTime.day))
+        .toSet()
+        .toList();
+    dates.sort((a, b) => b.compareTo(a));
+    if (dates.isEmpty || dates.first != today) return 0;
+    int streak = 0;
+    DateTime check = today;
+    for (final d in dates) {
+      if (d == check) {
+        streak++;
+        check = check.subtract(const Duration(days: 1));
+      } else if (d.isBefore(check)) {
+        break;
+      }
+    }
+    return streak;
+  }
 }
 
